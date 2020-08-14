@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="tstColor">rfb</color>
+    <string name="stringTest">Base string</string>
+    <bool name="niewiem">false</bool>
+    <drawable name="person_pl">@drawable/person</drawable>
+    <color name="alias">@color/colorPrimary</color>
+    <dimen name="cornersy">40dp</dimen>
+    <array name="random_array">
+        <item>@drawable/whatever</item>
+        <item>@string/stringTest</item>
+        <item>@color/colorPrimary</item>
+    </array>
 </resources>

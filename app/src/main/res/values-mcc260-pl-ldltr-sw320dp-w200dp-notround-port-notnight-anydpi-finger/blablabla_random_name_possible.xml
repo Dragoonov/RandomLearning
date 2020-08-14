@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="stringTest">Customized string</string>
+    <bool name="niewiem">false</bool>
+    <color name="alias">@color/colorPrimary</color>
+</resources>
