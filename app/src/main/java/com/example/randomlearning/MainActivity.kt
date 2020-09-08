@@ -1,26 +1,29 @@
 package com.example.randomlearning
 
-import android.content.Intent
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
-import java.lang.ref.PhantomReference
-import java.lang.ref.SoftReference
-import java.lang.ref.WeakReference
+import androidx.work.*
+
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        findViewById<Button>(R.id.button).setOnClickListener {
-            startActivity(Intent(this, SecondActivity::class.java))
-            finish()
-            System.gc()
-        }
-        if (!ReferenceHolder.set) {
-            ReferenceHolder.setReference(this)
-        }
-        ReferenceHolder.printReferences(this)
+        val workManager = WorkManager.getInstance(this)
+        val request1 = OneTimeWorkRequestBuilder<ExampleWorker>().setInputData(Data.Builder().putInt("key", 15).build()).build()
+        val request2 = OneTimeWorkRequestBuilder<ExampleWorker>().setInputData(Data.Builder().putInt("key", 15).build()).build()
+        //val request2 = OneTimeWorkRequest.from(ExampleWorker::class.java)
+        val request3 = OneTimeWorkRequest.from(ExampleWorker::class.java)
+        workManager.beginUniqueWork("name",ExistingWorkPolicy.REPLACE, request1).then(request2).then(request3).enqueue()
+    }
+}
+
+class ExampleWorker(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams) {
+    override fun doWork(): Result {
+        val result = inputData.getInt("key", 0) + 1
+        Log.v("Worker", "Doing some work on a thread: " + Thread.currentThread() + ", value: " + result)
+        return Result.success(Data.Builder().putInt("key", result).build())
     }
 }
