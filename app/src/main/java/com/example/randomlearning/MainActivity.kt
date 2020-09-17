@@ -1,24 +1,23 @@
 package com.example.randomlearning
 
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
-import com.example.randomlearning.developer.Developer
-import com.example.randomlearning.developer.Product
-import com.example.randomlearning.developer_impl.BoatDeveloper
-import com.example.randomlearning.developer_impl.HouseDeveloper
+import com.example.randomlearning.developer.DeveloperFactory
+import com.example.randomlearning.developer.LUXURY
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val developer: Developer = BoatDeveloper()
-        val product: Product = developer.develop()
-        val developer2: Developer = HouseDeveloper()
-        val product2: Product = developer2.develop()
-        Log.v("Main", product.getPrice().toString())
-        Log.v("Main", product2.getPrice().toString())
+        val factory = DeveloperFactory()
+        val iWantCheapProducts = factory.provideDeveloper(LUXURY.CHEAP)
+        val hmmmWhatBoatCanIGet = iWantCheapProducts.provideBoat()
+        Log.v("Main", hmmmWhatBoatCanIGet.getName() + " is leaking?: " + hmmmWhatBoatCanIGet.isLeaking())
+        val andIAmASelfishBusinessman = factory.provideDeveloper(LUXURY.EXPENSIVE)
+        val iWantBestNetSoiCanThinkIAmBetterthanOthers = andIAmASelfishBusinessman.provideNet()
+        Log.v("Main", iWantBestNetSoiCanThinkIAmBetterthanOthers.getName() + " is leaking?: " +
+                iWantBestNetSoiCanThinkIAmBetterthanOthers.isTorn())
+
     }
 }
