@@ -1,15 +1,13 @@
 package com.example.randomlearning.developer
 
-class DeveloperFactory {
+import com.example.randomlearning.product.Boat
+import com.example.randomlearning.product.Net
+import com.example.randomlearning.product.Product
+import com.example.randomlearning.product.Worms
 
-    fun provideDeveloper(luxury: LUXURY): Developer =
-        when (luxury) {
-            LUXURY.CHEAP -> FishAndMishDeveloper()
-            LUXURY.MEDIUM -> SereneWatersDeveloper()
-            LUXURY.EXPENSIVE -> WaterfallDeveloper()
-        }
-}
+interface DeveloperFactory {
 
-enum class LUXURY {
-    CHEAP, MEDIUM, EXPENSIVE
+    fun provideBoat(): Boat
+    fun provideNet(): Net
+    fun provideWorms(): Worms
 }
