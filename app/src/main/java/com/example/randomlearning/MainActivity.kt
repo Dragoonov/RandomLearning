@@ -1,40 +1,36 @@
 package com.example.randomlearning
 
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
-import kotlin.properties.Delegates
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val boat = Boat().also { it.init() }
-        val boatClone = boat.clone()
-        Log.v("Main", "$boat, $boatClone")
+        val singleton = Singleton.getSingleton()
+        singleton.value = "Mama"
+        val singleton2 = Singleton.getSingleton()
+
+        Log.v("Main", (singleton.value == singleton2.value).toString())
     }
 }
 
 //Wow, such a huge pattern
-class Boat constructor(): Cloneable {
+class Singleton private constructor() {
+    var value: String = ""
 
-    private var isWooden by Delegates.notNull<Boolean>()
-    private lateinit var name: String
+    companion object {
 
-    fun init() {
-        isWooden = true
-        name = "Boacik"
+        fun getSingleton(): Singleton {
+            return if (instance == null) {
+                instance = Singleton()
+                instance as Singleton
+            } else {
+                instance as Singleton
+            }
+        }
+        private var instance: Singleton? = null
     }
 
-    constructor(boat: Boat) : this() {
-        this.isWooden = boat.isWooden
-        this.name = boat.name
-    }
-    public override fun clone(): Boat = Boat(this)
-
-    override fun toString(): String {
-        return "$isWooden   $name"
-    }
 }
