@@ -2,29 +2,56 @@ package com.example.randomlearning
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.example.randomlearning.predators.Pantera
-import com.example.randomlearning.predators.PawWithClaws
-import com.example.randomlearning.predators.Tarantula
-import com.example.randomlearning.predators.VenomFangs
+import android.util.Log
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val pantera = Pantera(PawWithClaws())
-        val venomPantera = Pantera(VenomFangs())
-        val spider = Tarantula()
+        val tree: TreeComponent = Trunk(
+            listOf(
+                Branch(
+                    listOf(Leaf(), Leaf(), Leaf()
+            )), Branch(
+                    listOf(Leaf(), Leaf(), Leaf()))
+            )
+        )
 
-        pantera.fight()
-        pantera.kill()
-
-        venomPantera.fight()
-        venomPantera.kill()
-
-        spider.fight()
-        spider.kill()
-
+        Log.v("Composite", tree.getWeight().toString())
     }
+}
+
+interface TreeComponent {
+    fun getWeight(): Int
+}
+
+class Trunk(private val components: List<TreeComponent>): TreeComponent {
+
+    private val weight = 5
+
+    override fun getWeight(): Int {
+        return weight + components
+            .map { it.getWeight() }
+            .reduce { acc, treeComponent -> acc+treeComponent }
+    }
+}
+
+class Branch(private val components: List<TreeComponent>): TreeComponent {
+
+    private val weight = 3
+    override fun getWeight(): Int {
+        return weight + components
+            .map { it.getWeight() }
+            .reduce { acc, treeComponent -> acc+treeComponent }
+    }
+}
+
+class Leaf: TreeComponent {
+    private val weight = 1
+    override fun getWeight(): Int {
+        return weight
+    }
+
 }
 
 
