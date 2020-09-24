@@ -1,54 +1,73 @@
 package com.example.randomlearning
 
-import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import kotlin.random.Random
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        val colors = arrayOf(Color.BLACK, Color.RED, Color.GRAY, Color.BLUE)
-        val thicks = arrayOf(1,2,3,4)
-
-        val hairs: MutableList<VaryingHair> = mutableListOf()
-        val rand =  Random(1)
-        repeat(1000000) {
-            hairs.add(VaryingHair(
-                colors[rand.nextInt(4)],
-                thicks[rand.nextInt(4)],
-                3, 4 to 5
-            ))
-        }
-        Log.d("Flyweight","Number of light VaryingHair objects: " + hairs.size + ", number of heavy Hair objects: " + HairFactory.getHairsSize())
+        val shop: Shop = XkomSlyProxy()
+        val phone = shop.givePhone()
+        phone.call()
+        phone.takePhoto()
+        phone.writeMessage()
     }
 }
 
+interface Shop {
+    fun givePhone(): Smartphone
+}
 
-class HairFactory {
+class XKom: Shop {
+    override fun givePhone(): Smartphone {
+        return WorkingPhone()
+    }
+}
 
-    companion object {
-        private val hairs: MutableList<Hair> = mutableListOf()
+class XkomSlyProxy: Shop {
+    private val shop: Shop = XKom()
 
-        fun lookForHair(color: Int, thickness: Int): Hair {
-            val hair = hairs.find { it.getValues() == color to thickness }
-            return hair ?: Hair(color, thickness).apply {
-                hairs.add(this)
-            }
-        }
-        fun getHairsSize() = hairs.size
+    override fun givePhone(): Smartphone {
+        val phone = shop.givePhone()
+        Log.d("Proxy", "Destroying this piece of shiet!!!")
+        return BrokenPhone()
+    }
+}
+
+interface Smartphone {
+    fun call()
+    fun takePhoto()
+    fun writeMessage()
+}
+
+class WorkingPhone: Smartphone {
+    override fun call() {
+        Log.d("Proxy", "Calling")
+    }
+
+    override fun takePhoto() {
+        Log.d("Proxy", "Taking a beautiful photo")
+    }
+
+    override fun writeMessage() {
+        Log.d("Proxy", "Writing and sending an SMS")
     }
 
 }
-// Heeeavy object
-data class Hair (private val color: Int, private val thickness: Int) {
-    fun getValues(): Pair<Int,Int> = color to thickness
-}
 
-class VaryingHair(color: Int, thickness: Int,private val length: Int,private val coord: Pair<Int, Int>) {
-    private val hair: Hair = HairFactory.lookForHair(color,thickness)
-}
+class BrokenPhone: Smartphone {
 
+    override fun call() {
+        Log.d("Proxy", "Hmm, cannot get a signal")
+    }
+
+    override fun takePhoto() {
+        Log.d("Proxy", "Jezus, black photograph")
+    }
+
+    override fun writeMessage() {
+        Log.d("Proxy", "Goddamn, the phone exploded!")
+    }
+}
