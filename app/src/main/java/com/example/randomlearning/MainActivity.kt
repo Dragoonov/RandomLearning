@@ -2,53 +2,120 @@ package com.example.randomlearning
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val list = listOf(1,2,3,4,5,6,7,8)
-
-        val iterator = list.getEverySecondIterator()
-        val secondIterator = list.getFromEndIterator()
-
-        while(iterator.hasNext()) {
-            Log.d("Iterator", iterator.next().toString())
+        val watcher = Watcher()
+        GangMediator().apply {
+            registerMember(watcher)
+            registerMember(WindowShooter())
+            registerMember(Robber())
+            registerMember(BangThrower())
+            registerMember((Intimidater()))
         }
+        watcher.startAction()
+    }
+}
+interface Mediator {
+    fun registerMember(member: Member)
+    fun startAction()
+    fun onFinished()
+}
 
-        while(secondIterator.hasNext()) {
-            Log.d("Iterator", secondIterator.next().toString())
+class GangMediator: Mediator {
+    private lateinit var robber: Robber
+    private lateinit var watcher: Watcher
+    private lateinit var bangThrower: BangThrower
+    private lateinit var shooter: WindowShooter
+    private lateinit var intimidater: Intimidater
+
+    override fun registerMember(member: Member) {
+        when(member) {
+            is Robber -> robber = member.apply { registerMediator(this@GangMediator) }
+            is Watcher -> watcher = member.apply { registerMediator(this@GangMediator) }
+            is BangThrower -> bangThrower = member.apply { registerMediator(this@GangMediator) }
+            is WindowShooter -> shooter = member.apply { registerMediator(this@GangMediator) }
+            is Intimidater -> intimidater = member.apply { registerMediator(this@GangMediator) }
         }
+    }
 
+    override fun startAction() {
+        bangThrower.throwBangGrenade()
+        Thread.sleep(500)
+        shooter.shootWindows()
+        intimidater.intimidate()
+        robber.robPeople()
+    }
+
+    override fun onFinished() {
+        bangThrower.escape()
+        shooter.escape()
+        intimidater.escape()
+        robber.escape()
+        watcher.escape()
+    }
+
+
+}
+
+
+interface GangMember {
+    fun registerMediator(mediator: Mediator)
+    fun escape()
+}
+
+abstract class Member: GangMember {
+    protected lateinit var mediator: Mediator
+
+    override fun registerMediator(mediator: Mediator) {
+        this.mediator = mediator
+    }
+    override fun escape() {
+        Log.d("Mediator", "${javaClass.simpleName} escaping!")
     }
 }
 
-fun <T> Collection<T>.getEverySecondIterator(): MyIterator<T> = EverySecondIterator(this)
-
-fun <T> Collection<T>.getFromEndIterator(): MyIterator<T> = FromEndIterator(this)
-
-interface MyIterator<T> {
-    fun hasNext(): Boolean
-    fun next(): T
+class Watcher: Member() {
+    fun startAction() {
+        Thread.sleep(2000)
+        Log.d("Mediator", "People are not focused, can start the action")
+        mediator.startAction()
+    }
 }
 
-class EverySecondIterator<T>(private val collection: Collection<T>): MyIterator<T> {
-    private var currentPosition = 0
-
-    override fun hasNext() = currentPosition < collection.size
-
-    override fun next(): T = collection.elementAt(currentPosition).also { currentPosition += 2 }
-
+class BangThrower: Member() {
+    fun throwBangGrenade() {
+        Log.d("Mediator", "Throwing the bang grenade through the window")
+    }
 }
 
-class FromEndIterator<T>(private val collection: Collection<T>): MyIterator<T> {
-    private var currentPosition = collection.size-1
+class WindowShooter: Member() {
+    fun shootWindows() {
+        Log.d("Mediator", "People are baffled by the bang, can start shooting")
+    }
+}
 
-    override fun hasNext(): Boolean = currentPosition >= 0
+class Intimidater: Member() {
+    fun intimidate() {
+        Log.d("Mediator", "Intimidating people with the gun")
+    }
+}
 
-    override fun next(): T = collection.elementAt(currentPosition).also { currentPosition -= 1 }
+class Robber: Member() {
+    fun robPeople() {
+        Log.d("Mediator", "Robbing intimidated people")
+        Thread.sleep(3000)
+        finished()
+    }
 
+    private fun finished() {
+        Log.d("Mediator", "Finished robbing, time to escape")
+        mediator.onFinished()
+    }
 }
 
 
