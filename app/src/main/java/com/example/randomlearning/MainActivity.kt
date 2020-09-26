@@ -3,24 +3,63 @@ package com.example.randomlearning
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import com.example.randomlearning.oneversion.*
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val visitor = Visitor()
-        val visitor2 = Visitor(moneyAmount = 4999)
-        val theOffice = QuestionHandler().apply {
-            linkWith(BossApprovalHandler())
-            .linkWith(GrandmaApprovalHandler())
-            .linkWith(MoneyAmountHandler())
-            .linkWith(LandBuyableHandler())
-        }
+        val sender = Sender()
+        CommandFactory.setReceiver(Receiver())
+        sender.orderRunning(10)
+        sender.orderLeaning()
+    }
+}
 
-        theOffice.handle(visitor)
+object CommandFactory {
+    private lateinit var receiver: Receiver
+    fun setReceiver(receiver: Receiver): CommandFactory {
+        CommandFactory.receiver = receiver
+        return CommandFactory
+    }
 
-        theOffice.handle(visitor2)
+    fun getRunningCommand(): RunningCommand {
+        return RunningCommand(receiver)
+    }
+
+    fun getLeanCommand(): LeaningCommand {
+        return LeaningCommand(receiver)
+    }
+}
+
+class RunningCommand(private val receiver: Receiver) {
+    fun execute(speed: Int) {
+        receiver.runForward(speed)
+    }
+}
+
+class LeaningCommand(private val receiver: Receiver) {
+    fun execute() {
+        receiver.leanBack()
+    }
+}
+
+class Sender() {
+    fun orderRunning(speed: Int) {
+        CommandFactory.getRunningCommand().execute(speed)
+    }
+
+    fun orderLeaning() {
+        CommandFactory.getLeanCommand().execute()
+    }
+}
+
+class Receiver {
+    fun runForward(speed: Int) {
+        Log.d("Command", "I'm running forward as commanded with speed $speed")
+    }
+
+    fun leanBack() {
+        Log.d("Command", "I'm leaning back sa commanded")
     }
 }
 
