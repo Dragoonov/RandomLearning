@@ -8,59 +8,47 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val sender = Sender()
-        CommandFactory.setReceiver(Receiver())
-        sender.orderRunning(10)
-        sender.orderLeaning()
+        val list = listOf(1,2,3,4,5,6,7,8)
+
+        val iterator = list.getEverySecondIterator()
+        val secondIterator = list.getFromEndIterator()
+
+        while(iterator.hasNext()) {
+            Log.d("Iterator", iterator.next().toString())
+        }
+
+        while(secondIterator.hasNext()) {
+            Log.d("Iterator", secondIterator.next().toString())
+        }
+
     }
 }
 
-object CommandFactory {
-    private lateinit var receiver: Receiver
-    fun setReceiver(receiver: Receiver): CommandFactory {
-        CommandFactory.receiver = receiver
-        return CommandFactory
-    }
+fun <T> Collection<T>.getEverySecondIterator(): MyIterator<T> = EverySecondIterator(this)
 
-    fun getRunningCommand(): RunningCommand {
-        return RunningCommand(receiver)
-    }
+fun <T> Collection<T>.getFromEndIterator(): MyIterator<T> = FromEndIterator(this)
 
-    fun getLeanCommand(): LeaningCommand {
-        return LeaningCommand(receiver)
-    }
+interface MyIterator<T> {
+    fun hasNext(): Boolean
+    fun next(): T
 }
 
-class RunningCommand(private val receiver: Receiver) {
-    fun execute(speed: Int) {
-        receiver.runForward(speed)
-    }
+class EverySecondIterator<T>(private val collection: Collection<T>): MyIterator<T> {
+    private var currentPosition = 0
+
+    override fun hasNext() = currentPosition < collection.size
+
+    override fun next(): T = collection.elementAt(currentPosition).also { currentPosition += 2 }
+
 }
 
-class LeaningCommand(private val receiver: Receiver) {
-    fun execute() {
-        receiver.leanBack()
-    }
-}
+class FromEndIterator<T>(private val collection: Collection<T>): MyIterator<T> {
+    private var currentPosition = collection.size-1
 
-class Sender() {
-    fun orderRunning(speed: Int) {
-        CommandFactory.getRunningCommand().execute(speed)
-    }
+    override fun hasNext(): Boolean = currentPosition >= 0
 
-    fun orderLeaning() {
-        CommandFactory.getLeanCommand().execute()
-    }
-}
+    override fun next(): T = collection.elementAt(currentPosition).also { currentPosition -= 1 }
 
-class Receiver {
-    fun runForward(speed: Int) {
-        Log.d("Command", "I'm running forward as commanded with speed $speed")
-    }
-
-    fun leanBack() {
-        Log.d("Command", "I'm leaning back sa commanded")
-    }
 }
 
 
