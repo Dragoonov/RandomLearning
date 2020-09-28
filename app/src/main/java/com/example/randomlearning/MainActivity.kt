@@ -8,52 +8,93 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val gameStore = Publisher()
-        listOf(
-            HornyTeen("Tom"),
-            HornyTeen("Jerry"),
-            HornyTeen("Marco")
-        ).also { list ->
-            list.forEach { gameStore.subscribe(it) }
-        }
+        val robot = Robot()
+        val mean = MeanRobotState()
+        val nice = NiceRobotState()
+        val neutral = IndifferentRobotState()
 
-        gameStore.newGame = "Some shit game"
-        gameStore.newGame = "Even shittier game"
-        gameStore.newGame = "Game not worth its price"
+        robot.changeState(mean)
+        robot.sayHello()
+        robot.sayGoodbye()
+        robot.play()
 
-        //unsubscribe
+        robot.changeState(nice)
+        robot.sayHello()
+        robot.sayGoodbye()
+        robot.play()
+
+        robot.changeState(neutral)
+        robot.sayHello()
+        robot.sayGoodbye()
+        robot.play()
     }
 }
 
-class Publisher {
+class Robot {
 
-    private val observers: MutableList<MyObserver> = mutableListOf()
+    private var state: RobotState? = null
 
-    var newGame = "Mass Effect"
-    set(value) {
-        field = value
-        notifyObservers()
+    fun changeState(state: RobotState) {
+        this.state = state
     }
 
-    fun subscribe(observer: MyObserver) {
-        observers.add(observer)
+    fun sayHello() {
+        state?.sayHello()
     }
 
-    fun unsubscribe(observer: MyObserver) {
-        observers.remove(observer)
+    fun sayGoodbye() {
+        state?.sayGoodbye()
     }
 
-    private fun notifyObservers() {
-        observers.forEach { it.onChanged(newGame) }
+    fun play() {
+        state?.play()
     }
 }
 
-interface MyObserver {
-    fun onChanged(game: String)
+abstract class RobotState {
+    abstract fun sayHello()
+    abstract fun sayGoodbye()
+    abstract fun play()
 }
 
-class HornyTeen(private val name: String): MyObserver {
-    override fun onChanged(game: String) {
-        Log.d("Observer","$name: AAAAAH NEW GAAAAAAAME I MUST HAVE ITTTTT: $game")
+class NiceRobotState: RobotState() {
+    override fun sayHello() {
+        Log.d("State", "Hello, nice to meet you, I'm a robot")
+    }
+
+    override fun sayGoodbye() {
+        Log.d("State", "Goodbye friends,  hope to meet again! :)))")
+    }
+
+    override fun play() {
+        Log.d("State", "Let's play, it's so fun :D")
+    }
+}
+
+class IndifferentRobotState: RobotState() {
+    override fun sayHello() {
+        Log.d("State", "Hey.")
+    }
+
+    override fun sayGoodbye() {
+        Log.d("State", "Bye.")
+    }
+
+    override fun play() {
+        Log.d("State", "Whatever.")
+    }
+}
+
+class MeanRobotState: RobotState() {
+    override fun sayHello() {
+        Log.d("State", "What are you looking at, you shit piecies?!11")
+    }
+
+    override fun sayGoodbye() {
+        Log.d("State", "Get the fuck out you whores!!!")
+    }
+
+    override fun play() {
+        Log.d("State", "I'm gonna smash your heads and rip open your bellies!")
     }
 }
