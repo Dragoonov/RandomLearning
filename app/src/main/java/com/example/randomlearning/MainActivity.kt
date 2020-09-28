@@ -2,120 +2,96 @@ package com.example.randomlearning
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
+import com.google.gson.Gson
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val watcher = Watcher()
-        GangMediator().apply {
-            registerMember(watcher)
-            registerMember(WindowShooter())
-            registerMember(Robber())
-            registerMember(BangThrower())
-            registerMember((Intimidater()))
-        }
-        watcher.startAction()
-    }
-}
-interface Mediator {
-    fun registerMember(member: Member)
-    fun startAction()
-    fun onFinished()
-}
+        val witness = Witness()
+        witness.walkFirst()
+        witness.walkSecond()
+        witness.walkThird()
+        witness.walkFourth()
 
-class GangMediator: Mediator {
-    private lateinit var robber: Robber
-    private lateinit var watcher: Watcher
-    private lateinit var bangThrower: BangThrower
-    private lateinit var shooter: WindowShooter
-    private lateinit var intimidater: Intimidater
+        Log.d("Memento", "Hey, I'm a policeman. There was a crime here. Tell me what you've been doing")
 
-    override fun registerMember(member: Member) {
-        when(member) {
-            is Robber -> robber = member.apply { registerMediator(this@GangMediator) }
-            is Watcher -> watcher = member.apply { registerMediator(this@GangMediator) }
-            is BangThrower -> bangThrower = member.apply { registerMediator(this@GangMediator) }
-            is WindowShooter -> shooter = member.apply { registerMediator(this@GangMediator) }
-            is Intimidater -> intimidater = member.apply { registerMediator(this@GangMediator) }
+        witness.giveTestimony().forEach {
+            Log.d("Memento",it.restore().toString())
         }
     }
-
-    override fun startAction() {
-        bangThrower.throwBangGrenade()
-        Thread.sleep(500)
-        shooter.shootWindows()
-        intimidater.intimidate()
-        robber.robPeople()
-    }
-
-    override fun onFinished() {
-        bangThrower.escape()
-        shooter.escape()
-        intimidater.escape()
-        robber.escape()
-        watcher.escape()
-    }
-
-
 }
 
+data class Witness (
+    private var streetName:String = "Dragon's Bay",
+    private var holdingCigaro:Boolean = false,
+    private var havingSunglasses:Boolean = false,
+    private var weather:String = "Sunny",
+    private var metersWalked:Int = 100
+) {
+    private val memory: MutableList<Memento> = mutableListOf()
 
-interface GangMember {
-    fun registerMediator(mediator: Mediator)
-    fun escape()
-}
+    private fun produceSnapshot(): Memento = Memento(this)
 
-abstract class Member: GangMember {
-    protected lateinit var mediator: Mediator
+    fun remember(): String = Gson().toJson(Snapshot())
 
-    override fun registerMediator(mediator: Mediator) {
-        this.mediator = mediator
+    fun restore(state: String): Witness = Gson().fromJson(state, Snapshot::class.java).restoreWitness()
+
+    fun walkFirst() {
+        memory.add(produceSnapshot())
+        Log.d("Memento", toString())
     }
-    override fun escape() {
-        Log.d("Mediator", "${javaClass.simpleName} escaping!")
-    }
-}
-
-class Watcher: Member() {
-    fun startAction() {
-        Thread.sleep(2000)
-        Log.d("Mediator", "People are not focused, can start the action")
-        mediator.startAction()
-    }
-}
-
-class BangThrower: Member() {
-    fun throwBangGrenade() {
-        Log.d("Mediator", "Throwing the bang grenade through the window")
-    }
-}
-
-class WindowShooter: Member() {
-    fun shootWindows() {
-        Log.d("Mediator", "People are baffled by the bang, can start shooting")
-    }
-}
-
-class Intimidater: Member() {
-    fun intimidate() {
-        Log.d("Mediator", "Intimidating people with the gun")
-    }
-}
-
-class Robber: Member() {
-    fun robPeople() {
-        Log.d("Mediator", "Robbing intimidated people")
-        Thread.sleep(3000)
-        finished()
+    fun walkSecond() {
+        streetName = "Snake's Tongue"
+        metersWalked = 200
+        memory.add(produceSnapshot())
+        Log.d("Memento", toString())
     }
 
-    private fun finished() {
-        Log.d("Mediator", "Finished robbing, time to escape")
-        mediator.onFinished()
+    fun walkThird() {
+        metersWalked = 300
+        holdingCigaro = true
+        memory.add(produceSnapshot())
+        Log.d("Memento", toString())
+    }
+
+    fun walkFourth() {
+        metersWalked = 400
+        havingSunglasses = true
+        memory.add(produceSnapshot())
+        Log.d("Memento", toString())
+    }
+
+    fun giveTestimony(): List<Memento> = memory
+
+    override fun toString(): String {
+        return "So I was walking down the $streetName, " +
+                if (holdingCigaro) {
+                    "holding cigaro and "
+                } else {
+                    ""
+                } +
+                if (havingSunglasses) {
+                    "wearing sunglasses and "
+                } else {
+                    ""
+                } + "the weather was $weather. I think I walked $metersWalked meters from the house."
+    }
+
+    private inner class Snapshot (
+        val street: String = streetName,
+        val cigaro: Boolean = holdingCigaro,
+        val glasses: Boolean = havingSunglasses,
+        val weath: String = weather,
+        val meters: Int = metersWalked) {
+
+        fun restoreWitness(): Witness = Witness(street, cigaro, glasses, weath, meters)
     }
 }
 
+class Memento (private val witness: Witness) {
+    private val backup = witness.remember()
 
+    fun restore() = witness.restore(backup)
+}
