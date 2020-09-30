@@ -8,61 +8,56 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        val serene = SereneChild()
+        val angry = AngryChild()
+        val indifferent = IndifferentChild()
+        val toy = RobotToy()
 
-        val riggedToyBuilder = RiggedToyBuilder()
-        val normalBuilder = NormalToyBuilder()
-
-        riggedToyBuilder.buildToy()
-
-        normalBuilder.buildToy()
+        serene.takeToy(toy)
+        angry.takeToy(toy)
+        indifferent.takeToy(toy)
     }
 }
+interface ToyVisitor {
+    fun reactOnChild(angryChild: AngryChild)
+    fun reactOnChild(sereneChild: SereneChild)
+    fun reactOnChild(indifferentChild: IndifferentChild)
+}
 
-abstract class ToyBuilder {
-    fun buildToy() {
-        placeLegs()
-        placeHands()
-        fillBelly()
-        attachEyes()
-        glueHair()
+class RobotToy: ToyVisitor {
+    override fun reactOnChild(angryChild: AngryChild) {
+        Log.d("Visitor", "Hey, calm down or I'll smack you in the ass you ${angryChild.javaClass.simpleName}")
     }
 
-    private fun placeLegs() {
-        Log.d("Template", "Placing the legs on toy")
+    override fun reactOnChild(indifferentChild: IndifferentChild) {
+        Log.d("Visitor", "Say something, what you have your mouth for, you ${indifferentChild.javaClass.simpleName}?")
     }
-    private fun placeHands() {
-        Log.d("Template", "Placing the hands on toy")
 
-    }
-    protected abstract fun fillBelly()
-    protected abstract fun attachEyes()
-    private fun glueHair() {
-        Log.d("Template", "Glueing hair")
+    override fun reactOnChild(sereneChild: SereneChild) {
+        Log.d("Visitor", "Why so peaceful? I'll kill your mother, you ${sereneChild.javaClass.simpleName}!")
 
     }
 
 }
 
-class NormalToyBuilder: ToyBuilder() {
+interface Child {
+    fun takeToy(toy: ToyVisitor)
+}
 
-    override fun attachEyes() {
-        Log.d("Template", "Attaching normal sweet eyes")
-    }
-
-    override fun fillBelly() {
-        Log.d("Template", "Filling the belly with feathers")
-
+class SereneChild: Child {
+    override fun takeToy(toy: ToyVisitor) {
+        toy.reactOnChild(this)
     }
 }
 
-class RiggedToyBuilder: ToyBuilder() {
-    override fun fillBelly() {
-        Log.d("Template", "Filling belly with poison")
-
+class AngryChild: Child {
+    override fun takeToy(toy: ToyVisitor) {
+        toy.reactOnChild(this)
     }
+}
 
-    override fun attachEyes() {
-        Log.d("Template", "Attaching the diabolical eyes")
-
+class IndifferentChild: Child {
+    override fun takeToy(toy: ToyVisitor) {
+        toy.reactOnChild(this)
     }
 }
