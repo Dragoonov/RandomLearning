@@ -9,21 +9,21 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val robot = Robot()
-        val mean = MeanRobotState()
-        val nice = NiceRobotState()
-        val neutral = IndifferentRobotState()
+        val mean = MeanRobotStrategy()
+        val nice = NiceRobotStrategy()
+        val neutral = IndifferentRobotStrategy()
 
-        robot.changeState(mean)
+        robot.changeStrategy(mean)
         robot.sayHello()
         robot.sayGoodbye()
         robot.play()
 
-        robot.changeState(nice)
+        robot.changeStrategy(nice)
         robot.sayHello()
         robot.sayGoodbye()
         robot.play()
 
-        robot.changeState(neutral)
+        robot.changeStrategy(neutral)
         robot.sayHello()
         robot.sayGoodbye()
         robot.play()
@@ -32,32 +32,32 @@ class MainActivity : AppCompatActivity() {
 
 class Robot {
 
-    private var state: RobotState? = null
+    private var strategy: RobotStrategy? = null
 
-    fun changeState(state: RobotState) {
-        this.state = state
+    fun changeStrategy(state: RobotStrategy) {
+        this.strategy = state
     }
 
     fun sayHello() {
-        state?.sayHello()
+        strategy?.sayHello()
     }
 
     fun sayGoodbye() {
-        state?.sayGoodbye()
+        strategy?.sayGoodbye()
     }
 
     fun play() {
-        state?.play()
+        strategy?.play()
     }
 }
 
-abstract class RobotState {
+abstract class RobotStrategy {
     abstract fun sayHello()
     abstract fun sayGoodbye()
     abstract fun play()
 }
 
-class NiceRobotState: RobotState() {
+class NiceRobotStrategy: RobotStrategy() {
     override fun sayHello() {
         Log.d("State", "Hello, nice to meet you, I'm a robot")
     }
@@ -71,7 +71,7 @@ class NiceRobotState: RobotState() {
     }
 }
 
-class IndifferentRobotState: RobotState() {
+class IndifferentRobotStrategy: RobotStrategy() {
     override fun sayHello() {
         Log.d("State", "Hey.")
     }
@@ -85,7 +85,7 @@ class IndifferentRobotState: RobotState() {
     }
 }
 
-class MeanRobotState: RobotState() {
+class MeanRobotStrategy: RobotStrategy() {
     override fun sayHello() {
         Log.d("State", "What are you looking at, you shit piecies?!11")
     }
