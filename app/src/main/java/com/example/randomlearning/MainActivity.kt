@@ -8,93 +8,61 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val robot = Robot()
-        val mean = MeanRobotStrategy()
-        val nice = NiceRobotStrategy()
-        val neutral = IndifferentRobotStrategy()
 
-        robot.changeStrategy(mean)
-        robot.sayHello()
-        robot.sayGoodbye()
-        robot.play()
+        val riggedToyBuilder = RiggedToyBuilder()
+        val normalBuilder = NormalToyBuilder()
 
-        robot.changeStrategy(nice)
-        robot.sayHello()
-        robot.sayGoodbye()
-        robot.play()
+        riggedToyBuilder.buildToy()
 
-        robot.changeStrategy(neutral)
-        robot.sayHello()
-        robot.sayGoodbye()
-        robot.play()
+        normalBuilder.buildToy()
     }
 }
 
-class Robot {
-
-    private var strategy: RobotStrategy? = null
-
-    fun changeStrategy(state: RobotStrategy) {
-        this.strategy = state
+abstract class ToyBuilder {
+    fun buildToy() {
+        placeLegs()
+        placeHands()
+        fillBelly()
+        attachEyes()
+        glueHair()
     }
 
-    fun sayHello() {
-        strategy?.sayHello()
+    private fun placeLegs() {
+        Log.d("Template", "Placing the legs on toy")
+    }
+    private fun placeHands() {
+        Log.d("Template", "Placing the hands on toy")
+
+    }
+    protected abstract fun fillBelly()
+    protected abstract fun attachEyes()
+    private fun glueHair() {
+        Log.d("Template", "Glueing hair")
+
     }
 
-    fun sayGoodbye() {
-        strategy?.sayGoodbye()
+}
+
+class NormalToyBuilder: ToyBuilder() {
+
+    override fun attachEyes() {
+        Log.d("Template", "Attaching normal sweet eyes")
     }
 
-    fun play() {
-        strategy?.play()
+    override fun fillBelly() {
+        Log.d("Template", "Filling the belly with feathers")
+
     }
 }
 
-abstract class RobotStrategy {
-    abstract fun sayHello()
-    abstract fun sayGoodbye()
-    abstract fun play()
-}
+class RiggedToyBuilder: ToyBuilder() {
+    override fun fillBelly() {
+        Log.d("Template", "Filling belly with poison")
 
-class NiceRobotStrategy: RobotStrategy() {
-    override fun sayHello() {
-        Log.d("State", "Hello, nice to meet you, I'm a robot")
     }
 
-    override fun sayGoodbye() {
-        Log.d("State", "Goodbye friends,  hope to meet again! :)))")
-    }
+    override fun attachEyes() {
+        Log.d("Template", "Attaching the diabolical eyes")
 
-    override fun play() {
-        Log.d("State", "Let's play, it's so fun :D")
-    }
-}
-
-class IndifferentRobotStrategy: RobotStrategy() {
-    override fun sayHello() {
-        Log.d("State", "Hey.")
-    }
-
-    override fun sayGoodbye() {
-        Log.d("State", "Bye.")
-    }
-
-    override fun play() {
-        Log.d("State", "Whatever.")
-    }
-}
-
-class MeanRobotStrategy: RobotStrategy() {
-    override fun sayHello() {
-        Log.d("State", "What are you looking at, you shit piecies?!11")
-    }
-
-    override fun sayGoodbye() {
-        Log.d("State", "Get the fuck out you whores!!!")
-    }
-
-    override fun play() {
-        Log.d("State", "I'm gonna smash your heads and rip open your bellies!")
     }
 }
